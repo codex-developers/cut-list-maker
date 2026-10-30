@@ -187,6 +187,13 @@ table.ed select { width: 100%; }
 .ed-name { min-width: 100px; }
 .ed-mat { min-width: 150px; }
 table.ed select.ed-edge { width: 54px; font: 600 15px var(--f-num); padding: 3px 4px; }
+table.ed tfoot td { padding: 0; border-bottom: none; }
+table.ed tbody:not(:empty) + tfoot td { border-top: 1px solid var(--line); }
+.ed-add {
+  display: block; width: 100%; padding: 9px 12px; text-align: left; cursor: pointer;
+  background: transparent; border: none; border-radius: 0 0 8px 8px; color: var(--accent); font: inherit; font-weight: 600;
+}
+.ed-add:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
 table.ed tr.bad td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
 table.ed tr.warn td { background: color-mix(in srgb, var(--danger) 9%, transparent) !important; }
 table.ed tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--danger); }

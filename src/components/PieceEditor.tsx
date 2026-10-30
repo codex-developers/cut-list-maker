@@ -130,6 +130,13 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
               );
             })}
           </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={10}>
+                <button type="button" class="ed-add" onClick={() => add()}>+ {t.add_piece}</button>
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
       <datalist id="matSuggest">{matNames.map(v => <option key={v} value={v} />)}</datalist>
