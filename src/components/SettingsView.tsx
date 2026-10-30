@@ -36,7 +36,7 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
   const addMaterial = () => {
     const last = s.materials[s.materials.length - 1];
     onSettings({
-      materials: [...s.materials, { id: uid(), name: "", thickness: 18, sheetL: last?.sheetL || 2800, sheetW: last?.sheetW || 2070, grain: false, bandId: "" }],
+      materials: [...s.materials, { id: uid(), name: "", thickness: 18, sheetL: last?.sheetL || 2800, sheetW: last?.sheetW || 2070, grain: true, bandId: "" }],
     });
   };
   const addBand = () => onSettings({ bands: [...s.bands, { id: uid(), type: DEFAULT_BAND_TYPE, label: "", width: 22, thickness: 1 }] });

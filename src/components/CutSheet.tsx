@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import { bandName, bandOf, type ColKey, type Edge, type Project, type Settings } from "../model";
+import { bandName, bandOf, matInfo, type ColKey, type Edge, type Project, type Settings } from "../model";
 import { fmtDate, fmtNum, type Texts } from "../i18n";
 import { stats, type Group, type Row } from "../sheet";
 
@@ -31,6 +31,7 @@ export const COLS: Col[] = [
   { k: "wid", label: "c_wid", w: 13, cls: "dim", cell: r => <Dim v={r.cutW} e={r.We} /> },
   { k: "qty", label: "c_qty", w: 10, cls: "qty", cell: r => r.qty },
   { k: "mat", label: "c_mat", cls: "mat", cell: r => r.mat },
+  { k: "thick", label: "c_thick", w: 8, cls: "qty", cell: (r, s) => fmtNum(matInfo(r.mat, s).thickness) },
   { k: "band", label: "c_band", w: 12, cls: "band", cell: (r, s) => (r.Le || r.We ? bandLabel(r.mat, s) : "") },
   { k: "grain", label: "c_grain", w: 10, cls: "grain", cell: r => GRAIN_MARK[r.g] },
   { k: "part", label: "c_part", w: 13, cls: "part", cell: r => r.name },

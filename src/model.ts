@@ -78,7 +78,7 @@ export const LANGS: { id: Lang; label: string }[] = [
   { id: "en", label: "English" },
 ];
 
-export type ColKey = "nr" | "len" | "wid" | "qty" | "mat" | "band" | "grain" | "part";
+export type ColKey = "nr" | "len" | "wid" | "qty" | "mat" | "thick" | "band" | "grain" | "part";
 
 export interface Settings {
   lang: Lang;
@@ -124,12 +124,12 @@ export const DEFAULT_SETTINGS: Settings = {
   lang: "sq",
   group: true,
   merge: true,
-  cols: { nr: true, len: true, wid: true, qty: true, mat: true, band: true, grain: true, part: true },
+  cols: { nr: true, len: true, wid: true, qty: true, mat: true, thick: true, band: true, grain: true, part: true },
   codeMap: { "": "Iveric 16mm Barok A427", "Colors\\White": "Iveric 16mm White" },
   partMap: { lesonit: "Lesonit 3mm White" },
   materials: [
     { id: "m1", name: "Iveric 16mm Barok A427", thickness: 16, sheetL: SHEET_L, sheetW: SHEET_W, grain: true, bandId: "" },
-    { id: "m2", name: "Iveric 16mm White", thickness: 16, sheetL: SHEET_L, sheetW: SHEET_W, grain: false, bandId: "" },
+    { id: "m2", name: "Iveric 16mm White", thickness: 16, sheetL: SHEET_L, sheetW: SHEET_W, grain: true, bandId: "" },
     { id: "m3", name: "Lesonit 3mm White", thickness: 3, sheetL: SHEET_L, sheetW: SHEET_W, grain: false, bandId: "" },
   ],
   bands: DEFAULT_BANDS,
@@ -201,7 +201,7 @@ export function matInfo(name: string, s: Settings): Material {
   const found = findMaterial(name, s);
   if (found) return found;
   const t = name.match(/(\d+(?:[.,]\d+)?)\s*mm/i);
-  return { id: "", name, thickness: t ? parseFloat(t[1].replace(",", ".")) : 16, sheetL: SHEET_L, sheetW: SHEET_W, grain: false, bandId: "" };
+  return { id: "", name, thickness: t ? parseFloat(t[1].replace(",", ".")) : 16, sheetL: SHEET_L, sheetW: SHEET_W, grain: true, bandId: "" };
 }
 
 /** Returns the library entry for name, adding one (mutating s.materials) when missing. */

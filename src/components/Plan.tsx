@@ -68,6 +68,11 @@ function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number
           <rect width="40" height="40" fill="#f1efea" />
           <line x1="0" y1="0" x2="0" y2="40" stroke="#c9c4ba" stroke-width="10" />
         </pattern>
+        {/* Wood grain: fine lines along the board length. */}
+        <pattern id="grain" width="400" height="48" patternUnits="userSpaceOnUse">
+          <rect width="400" height="48" fill="#fff" />
+          <path d="M 0 14 C 100 6, 300 22, 400 14 M 0 36 C 120 42, 260 28, 400 36" fill="none" stroke="#b8b1a3" stroke-width="2" />
+        </pattern>
       </defs>
       <rect x="0" y="0" width={W} height={H} fill="url(#waste)" stroke="#111" stroke-width="6" />
       <g transform={`translate(${trim} ${trim})`}>
@@ -84,7 +89,7 @@ function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number
           const showDims = Math.min(p.w, p.h) > fs * 2.6 && p.w > fs * 5;
           return (
             <g key={i}>
-              <rect x={p.x} y={p.y} width={p.w} height={p.h} fill="#fff" stroke="#111" stroke-width="4" />
+              <rect x={p.x} y={p.y} width={p.w} height={p.h} fill={mp.grain ? "url(#grain)" : "#fff"} stroke="#111" stroke-width="4" />
               <text x={p.x + p.w / 2} y={p.y + p.h / 2 - (showDims ? fs * 0.45 : 0)} class="svg-nr" font-size={fs}>{p.nr}</text>
               {showDims && (
                 <text x={p.x + p.w / 2} y={p.y + p.h / 2 + fs * 0.75} class="svg-dim" font-size={fs * 0.62}>
