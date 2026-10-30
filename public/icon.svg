@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1f6f5c"/>
+  <!-- a board with guillotine cuts -->
+  <rect x="96" y="136" width="320" height="240" rx="6" fill="#f7f6f3"/>
+  <path d="M256 136v240M96 256h160M336 256v120M256 316h80" stroke="#1f6f5c" stroke-width="14" fill="none"/>
+</svg>
