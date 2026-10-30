@@ -202,6 +202,8 @@ table.ed tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
   font: 600 16px var(--f-num); width: 40px; height: 30px; border-radius: 6px; cursor: pointer;
   border: 1px solid var(--line); background: var(--bg); color: var(--fg);
 }
+.ed-band { min-width: 130px; }
+.ed-band.auto { color: var(--muted); border-style: dashed; }
 .grain-btn.auto { color: var(--muted); border-style: dashed; }
 .ed-act { white-space: nowrap; width: 70px; }
 .icon { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 4px 6px; border-radius: 4px; }

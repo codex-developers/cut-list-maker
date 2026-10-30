@@ -1,12 +1,12 @@
 import type { ComponentChildren } from "preact";
-import { bandName, bandOf, matInfo, type ColKey, type Edge, type Project, type Settings } from "../model";
+import { bandName, matInfo, pieceBand, type ColKey, type Edge, type Project, type Settings } from "../model";
 import { fmtDate, fmtNum, type Texts } from "../i18n";
 import { stats, type Group, type Row } from "../sheet";
 
 const MARK = ["", "—", "="];
 
-function bandLabel(mat: string, s: Settings): string {
-  const b = bandOf(mat, s);
+function bandLabel(r: Row, s: Settings): string {
+  const b = pieceBand(r, s, r.mat);
   return b ? bandName(b) : "";
 }
 export const GRAIN_MARK = { L: "↕", W: "↔", free: "" } as const;
@@ -32,7 +32,7 @@ export const COLS: Col[] = [
   { k: "qty", label: "c_qty", w: 10, cls: "qty", cell: r => r.qty },
   { k: "mat", label: "c_mat", cls: "mat", cell: r => r.mat },
   { k: "thick", label: "c_thick", w: 8, cls: "qty", cell: (r, s) => fmtNum(matInfo(r.mat, s).thickness) },
-  { k: "band", label: "c_band", w: 12, cls: "band", cell: (r, s) => (r.Le || r.We ? bandLabel(r.mat, s) : "") },
+  { k: "band", label: "c_band", w: 12, cls: "band", cell: (r, s) => (r.Le || r.We ? bandLabel(r, s) : "") },
   { k: "grain", label: "c_grain", w: 10, cls: "grain", cell: r => GRAIN_MARK[r.g] },
   { k: "part", label: "c_part", w: 13, cls: "part", cell: r => r.name },
 ];
@@ -60,7 +60,7 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
   const all = stats(groups.flatMap(g => g.rows));
   const sum = (x: { pcs: number; area: number; edge: number }) =>
     `${x.pcs} ${t.pcs} · ${fmtNum(x.area, 2)} m² · ${fmtNum(x.edge, 1)} ${t.edge_m}`;
-  const usedBands = [...new Set(groups.flatMap(g => g.rows).filter(r => r.Le || r.We).map(r => bandLabel(r.mat, s)).filter(Boolean))];
+  const usedBands = [...new Set(groups.flatMap(g => g.rows).filter(r => r.Le || r.We).map(r => bandLabel(r, s)).filter(Boolean))];
   const hasGrain = groups.some(g => g.rows.some(r => r.g !== "free"));
 
   return (

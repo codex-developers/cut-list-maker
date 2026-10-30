@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { effectiveGrain, fitsBoard, materialOf, matInfo, newPiece, type Edge, type Grain, type Piece, type Settings } from "../model";
+import { bandName, bandOf, effectiveGrain, fitsBoard, materialOf, matInfo, newPiece, type Edge, type Grain, type Piece, type Settings } from "../model";
 import type { Texts } from "../i18n";
 import { GRAIN_MARK } from "./CutSheet";
 import { NumInput } from "./NumInput";
@@ -35,7 +35,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
   const add = (after?: Piece) => {
     // A new row copies material and grain from the row above, which is usually the same board.
     const src = after ?? pieces[pieces.length - 1];
-    const p = newPiece(src ? { code: src.code, material: src.material, grain: src.grain } : {});
+    const p = newPiece(src ? { code: src.code, material: src.material, grain: src.grain, bandId: src.bandId } : {});
     const i = after ? pieces.indexOf(after) + 1 : pieces.length;
     onChange([...pieces.slice(0, i), p, ...pieces.slice(i)], false);
     setFocusId(p.id);
@@ -89,13 +89,16 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
               <th>{t.c_qty}</th>
               <th>{t.c_mat}</th>
               <th>{t.c_grain}</th>
+              <th>{t.c_band}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {pieces.map((p, i) => {
               const fromCode = materialOf({ ...p, material: undefined }, s);
-              const mat = matInfo(materialOf(p, s), s);
+              const matName = materialOf(p, s);
+              const mat = matInfo(matName, s);
+              const matBand = bandOf(matName, s);
               const g = effectiveGrain(p, mat);
               const bad = !(p.L > 0 && p.W > 0 && p.qty > 0);
               const big = !bad && !fitsBoard(p, s);
@@ -121,6 +124,14 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
                       {GRAIN_MARK[g] || "∅"}
                     </button>
                   </td>
+                  <td>
+                    <select id={`b-${p.id}`} class={"ed-band" + (p.bandId ? "" : " auto")} value={p.bandId ?? ""} aria-label={t.c_band}
+                      title={p.bandId ? undefined : `${t.grain_auto}: ${matBand ? bandName(matBand) : t.no_band}`}
+                      onChange={e => update(p.id, { bandId: e.currentTarget.value || undefined }, false)}>
+                      <option value="">{matBand ? bandName(matBand) : t.no_band}</option>
+                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
+                    </select>
+                  </td>
                   <td class="ed-act">
                     <button type="button" class="icon" title={t.dup_piece} aria-label={t.dup_piece} onClick={() => duplicate(p)}>⧉</button>
                     <button type="button" class="icon" title={t.del_piece} aria-label={t.del_piece}
@@ -132,7 +143,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={10}>
+              <td colSpan={11}>
                 <button type="button" class="ed-add" onClick={() => add()}>+ {t.add_piece}</button>
               </td>
             </tr>

@@ -1,5 +1,5 @@
 // Turns a project's pieces into the groups and rows printed on the cutting sheet.
-import { cutSize, effectiveGrain, materialOf, matInfo, type Grain, type Piece, type Settings } from "./model";
+import { cutSize, effectiveGrain, materialOf, matInfo, pieceBand, type Grain, type Piece, type Settings } from "./model";
 
 export interface Row extends Piece {
   mat: string;
@@ -45,7 +45,8 @@ export function toRow(p: Piece, s: Settings): Row {
 /** Pieces with the same key print as one row when merging is on. */
 export function mergeKey(r: Row, s: Settings): string {
   if (!s.merge) return r.id;
-  return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g].join("|");
+  const band = r.Le || r.We ? pieceBand(r, s, r.mat)?.id ?? "" : "";
+  return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g, band].join("|");
 }
 
 const byLength = (a: Row, b: Row) => b.L - a.L || b.W - a.W || a.name.localeCompare(b.name);

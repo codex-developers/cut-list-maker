@@ -26,6 +26,8 @@ export interface Piece {
   material?: string;
   /** Unset = follow the material (grain board -> "L", plain board -> "free"). */
   grain?: Grain;
+  /** Edge band chosen in the editor; unset = the material's band. */
+  bandId?: string;
 }
 
 export interface Project {
@@ -223,6 +225,11 @@ export function bandOf(matName: string, s: Settings): Band | undefined {
   return id ? s.bands.find(b => b.id === id) : undefined;
 }
 
+/** The piece's own band if one is chosen, otherwise its material's band. */
+export function pieceBand(p: Piece, s: Settings, matName = materialOf(p, s)): Band | undefined {
+  return (p.bandId && s.bands.find(b => b.id === p.bandId)) || bandOf(matName, s);
+}
+
 export const hasEdge = (p: Piece) => p.Le > 0 || p.We > 0;
 
 export function effectiveGrain(p: Piece, mat: Material): Grain {
@@ -232,7 +239,7 @@ export function effectiveGrain(p: Piece, mat: Material): Grain {
 /** Size sent to the factory: the finished size, minus band thickness when that setting is on. */
 export function cutSize(p: Piece, s: Settings, matName = materialOf(p, s)): { L: number; W: number } {
   if (!s.deductBand) return { L: p.L, W: p.W };
-  const t = bandOf(matName, s)?.thickness || 0;
+  const t = pieceBand(p, s, matName)?.thickness || 0;
   const r = (v: number) => Math.round(v * 10) / 10;
   return { L: r(p.L - p.Le * t), W: r(p.W - p.We * t) };
 }
