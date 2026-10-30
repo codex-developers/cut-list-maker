@@ -99,7 +99,7 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
                   <td>
                     <select id={`mb-${m.id}`} value={m.bandId} aria-label={t.m_band} onChange={e => mat(m.id, { bandId: e.currentTarget.value })}>
                       <option value="">{t.no_band}</option>
-                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
+                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b, s.bands)}</option>)}
                     </select>
                   </td>
                   <td><button type="button" class="icon" title={t.remove} aria-label={t.remove} onClick={() => onSettings({ materials: s.materials.filter(x => x.id !== m.id) })}>✕</button></td>

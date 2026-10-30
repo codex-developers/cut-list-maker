@@ -199,7 +199,7 @@ export function ProjectView({ project: p, settings: s, t, onProject, onSettings 
                   <label key={"l" + m} class="code" for={`bm${i}`}>{m}</label>,
                   <select key={"i" + m} id={`bm${i}`} value={findMaterial(m, s)?.bandId ?? ""} onChange={e => setBand(m, e.currentTarget.value)}>
                     <option value="">{t.no_band}</option>
-                    {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
+                    {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b, s.bands)}</option>)}
                   </select>,
                 ])}
               </div>

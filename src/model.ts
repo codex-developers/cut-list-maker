@@ -215,9 +215,14 @@ export function ensureMaterial(s: Settings, name: string): Material {
   return m;
 }
 
-/** "ABS 22 × 2 mm": the band as shown in lists and on the sheet. */
-export function bandName(b: Band): string {
-  return [b.type, b.label].filter(Boolean).join(" ");
+/**
+ * "ABS 1 mm": the band as shown in lists and on the sheet. Pass the band library to add the width
+ * when another band of the same type and thickness exists, e.g. "ABS 2 mm (28)".
+ */
+export function bandName(b: Band, all: Band[] = []): string {
+  const name = `${b.type} ${String(b.thickness).replace(".", ",")} mm`;
+  const twin = all.some(o => o.id !== b.id && o.type === b.type && o.thickness === b.thickness);
+  return twin ? `${name} (${String(b.width).replace(".", ",")})` : name;
 }
 
 export function bandOf(matName: string, s: Settings): Band | undefined {

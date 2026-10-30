@@ -126,10 +126,10 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
                   </td>
                   <td>
                     <select id={`b-${p.id}`} class={"ed-band" + (p.bandId ? "" : " auto")} value={p.bandId ?? ""} aria-label={t.c_band}
-                      title={p.bandId ? undefined : `${t.grain_auto}: ${matBand ? bandName(matBand) : t.no_band}`}
+                      title={p.bandId ? undefined : `${t.grain_auto}: ${matBand ? bandName(matBand, s.bands) : t.no_band}`}
                       onChange={e => update(p.id, { bandId: e.currentTarget.value || undefined }, false)}>
-                      <option value="">{matBand ? bandName(matBand) : t.no_band}</option>
-                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
+                      <option value="">{matBand ? bandName(matBand, s.bands) : t.no_band}</option>
+                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b, s.bands)}</option>)}
                     </select>
                   </td>
                   <td class="ed-act">
