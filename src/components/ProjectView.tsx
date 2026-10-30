@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import { ensureMaterial, findMaterial, LANGS, type Lang, type Piece, type Project, type Settings } from "../model";
+import { bandName, ensureMaterial, findMaterial, LANGS, type Lang, type Piece, type Project, type Settings } from "../model";
 import type { Texts } from "../i18n";
 import { parsePieces, readPieceFile } from "../parse";
 import { pickFile, useFileDrop } from "../hooks";
@@ -199,7 +199,7 @@ export function ProjectView({ project: p, settings: s, t, onProject, onSettings 
                   <label key={"l" + m} class="code" for={`bm${i}`}>{m}</label>,
                   <select key={"i" + m} id={`bm${i}`} value={findMaterial(m, s)?.bandId ?? ""} onChange={e => setBand(m, e.currentTarget.value)}>
                     <option value="">{t.no_band}</option>
-                    {s.bands.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                    {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
                   </select>,
                 ])}
               </div>

@@ -1,4 +1,4 @@
-import { LANGS, parseBandLabel, uid, type Band, type Lang, type Material, type Settings } from "../model";
+import { BAND_TYPES, DEFAULT_BAND_TYPE, LANGS, bandName, parseBandLabel, uid, type Band, type BandType, type Lang, type Material, type Settings } from "../model";
 import { fmtNum, type Texts } from "../i18n";
 import { pickFile } from "../hooks";
 import { COLS } from "./CutSheet";
@@ -39,7 +39,7 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
       materials: [...s.materials, { id: uid(), name: "", thickness: 18, sheetL: last?.sheetL || 2800, sheetW: last?.sheetW || 2070, grain: false, bandId: "" }],
     });
   };
-  const addBand = () => onSettings({ bands: [...s.bands, { id: uid(), label: "", width: 22, thickness: 1 }] });
+  const addBand = () => onSettings({ bands: [...s.bands, { id: uid(), type: DEFAULT_BAND_TYPE, label: "", width: 22, thickness: 1 }] });
 
   return (
     <div class="settings">
@@ -99,7 +99,7 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
                   <td>
                     <select id={`mb-${m.id}`} value={m.bandId} aria-label={t.m_band} onChange={e => mat(m.id, { bandId: e.currentTarget.value })}>
                       <option value="">{t.no_band}</option>
-                      {s.bands.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                      {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b)}</option>)}
                     </select>
                   </td>
                   <td><button type="button" class="icon" title={t.remove} aria-label={t.remove} onClick={() => onSettings({ materials: s.materials.filter(x => x.id !== m.id) })}>✕</button></td>
@@ -115,10 +115,15 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
         <h2>{t.h_bands}</h2>
         <div class="tbl-scroll">
           <table class="ed set-tbl">
-            <thead><tr><th>{t.b_label}</th><th>{t.b_width}</th><th>{t.b_thick}</th><th></th></tr></thead>
+            <thead><tr><th>{t.b_type}</th><th>{t.b_label}</th><th>{t.b_width}</th><th>{t.b_thick}</th><th></th></tr></thead>
             <tbody>
               {s.bands.map(b => (
                 <tr key={b.id}>
+                  <td>
+                    <select id={`bty-${b.id}`} class="band-type" value={b.type} aria-label={t.b_type} onChange={e => band(b.id, { type: e.currentTarget.value as BandType })}>
+                      {BAND_TYPES.map(x => <option key={x} value={x}>{x}</option>)}
+                    </select>
+                  </td>
                   <td>
                     <input id={`bl-${b.id}`} type="text" value={b.label} placeholder={`${fmtNum(b.width)} × ${fmtNum(b.thickness)} mm`}
                       onInput={e => {

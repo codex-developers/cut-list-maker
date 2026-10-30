@@ -50,8 +50,14 @@ export interface Material {
   bandId: string;
 }
 
+/** Edge band materials offered in Settings; extend this list to add more. */
+export const BAND_TYPES = ["ABS", "PVC"] as const;
+export type BandType = (typeof BAND_TYPES)[number];
+export const DEFAULT_BAND_TYPE: BandType = "ABS";
+
 export interface Band {
   id: string;
+  type: BandType;
   label: string;
   width: number;
   thickness: number;
@@ -107,11 +113,11 @@ const SHEET_L = 2800;
 const SHEET_W = 2070;
 
 export const DEFAULT_BANDS: Band[] = [
-  { id: "b045", label: "22 × 0,45 mm", width: 22, thickness: 0.45 },
-  { id: "b08", label: "22 × 0,8 mm", width: 22, thickness: 0.8 },
-  { id: "b1", label: "22 × 1 mm", width: 22, thickness: 1 },
-  { id: "b2", label: "22 × 2 mm", width: 22, thickness: 2 },
-  { id: "b282", label: "28 × 2 mm", width: 28, thickness: 2 },
+  { id: "b045", type: "ABS", label: "22 × 0,45 mm", width: 22, thickness: 0.45 },
+  { id: "b08", type: "ABS", label: "22 × 0,8 mm", width: 22, thickness: 0.8 },
+  { id: "b1", type: "ABS", label: "22 × 1 mm", width: 22, thickness: 1 },
+  { id: "b2", type: "ABS", label: "22 × 2 mm", width: 22, thickness: 2 },
+  { id: "b282", type: "ABS", label: "28 × 2 mm", width: 28, thickness: 2 },
 ];
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -152,7 +158,7 @@ export function normalizeSettings(raw: unknown): Settings {
     cols: { ...d.cols, ...(s.cols || {}) },
     company: { ...d.company, ...(s.company || {}) },
     materials: (s.materials || d.materials).map(m => ({ ...m })),
-    bands: (s.bands || d.bands).map(b => ({ ...b })),
+    bands: (s.bands || d.bands).map(b => ({ ...b, type: BAND_TYPES.includes(b.type) ? b.type : DEFAULT_BAND_TYPE })),
   };
   if (!LANGS.some(l => l.id === out.lang)) out.lang = d.lang;
 
@@ -161,7 +167,7 @@ export function normalizeSettings(raw: unknown): Settings {
     for (const [mat, text] of Object.entries(s.bandMap)) {
       if (!text.trim()) continue;
       let band = out.bands.find(b => b.label.trim() === text.trim());
-      if (!band) { band = { id: uid(), label: text.trim(), ...parseBandLabel(text) }; out.bands.push(band); }
+      if (!band) { band = { id: uid(), type: DEFAULT_BAND_TYPE, label: text.trim(), ...parseBandLabel(text) }; out.bands.push(band); }
       ensureMaterial(out, mat).bandId = band.id;
     }
   }
@@ -205,6 +211,11 @@ export function ensureMaterial(s: Settings, name: string): Material {
   const m = { ...matInfo(name, s), id: uid(), name: name.trim() };
   s.materials.push(m);
   return m;
+}
+
+/** "ABS 22 × 2 mm": the band as shown in lists and on the sheet. */
+export function bandName(b: Band): string {
+  return [b.type, b.label].filter(Boolean).join(" ");
 }
 
 export function bandOf(matName: string, s: Settings): Band | undefined {

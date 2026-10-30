@@ -183,6 +183,7 @@ table.ed input[type=text], table.ed select { padding: 5px 7px; font-size: 13.5px
 table.ed select { width: 100%; }
 .num { font-family: var(--f-num) !important; width: 76px !important; text-align: right; }
 .num.narrow { width: 54px !important; }
+.ed select.band-type { width: 80px; }
 .num.invalid { border-color: var(--danger); color: var(--danger); }
 .ed-name { min-width: 100px; }
 .ed-mat { min-width: 150px; }
