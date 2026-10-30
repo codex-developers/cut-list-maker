@@ -1,4 +1,4 @@
-# Lista e prerjes
+# Cut List Maker
 
 Turns furniture piece lists into a clean A4 cutting list for the cutting factory, with cutting diagrams. Albanian, Macedonian and English.
 
@@ -36,9 +36,10 @@ npm run dev
 
 ## Publish on GitHub Pages
 
-1. Push this repository to GitHub (branch `main`).
-2. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Every push to `main` runs `.github/workflows/deploy.yml` and publishes the app at `https://<user>.github.io/<repo>/`.
+Repository: https://github.com/codex-developers/cut-list-maker
+
+1. One time on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Every push to `main` runs `.github/workflows/deploy.yml` and publishes the app at https://codex-developers.github.io/cut-list-maker/.
 
 ## Layout
 

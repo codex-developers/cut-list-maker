@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       pwaAssets: { config: true },
       manifest: {
-        name: "Lista e prerjes",
-        short_name: "Prerja",
+        name: "Cut List Maker",
+        short_name: "Cut List",
         description: "Cutting lists for furniture pieces, ready to print and send to the cutting factory.",
         theme_color: "#1f6f5c",
         background_color: "#eceae6",

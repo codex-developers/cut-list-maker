@@ -38,7 +38,7 @@ export function Home({ projects, settings, t, onSettings, onAdd, onUpdate, onRem
     onAdd({ ...p, id: uid(), name: p.name + t.copy_suffix, pieces: p.pieces.map(x => ({ ...x, id: uid() })), createdAt: now, updatedAt: now });
   };
 
-  const backup = async () => downloadJson(`lista-e-prerjes-${fmtDate().split(".").reverse().join("-")}.json`, await makeBackup());
+  const backup = async () => downloadJson(`cut-list-maker-${fmtDate().split(".").reverse().join("-")}.json`, await makeBackup());
 
   const restore = async () => {
     const f = await pickFile(".json,application/json");

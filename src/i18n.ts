@@ -1,7 +1,7 @@
 import type { Lang } from "./model";
 
 const sq = {
-  app: "Lista e prerjes",
+  app: "Cut List Maker",
   tagline: "Nga lista e pjesëve te fleta për fabrikën e prerjes.",
   settings: "Cilësimet",
   // home
@@ -22,7 +22,7 @@ const sq = {
   backup: "Shkarko kopjen rezervë",
   restore: "Rikthe nga kopja",
   restored: (n: number) => `U rikthyen ${n} projekte.`,
-  restore_bad: "Ky skedar nuk është kopje rezervë e Listës së prerjes.",
+  restore_bad: "Ky skedar nuk është kopje rezervë e Cut List Maker.",
   backup_hint: "Projektet ruhen vetëm në këtë shfletues. Shkarko kopjen rezervë herë pas here.",
   sample_name: "paradhoma (shembull)",
   // project
@@ -154,7 +154,7 @@ const sq = {
 export type Texts = typeof sq;
 
 const mk: Texts = {
-  app: "Листа за сечење",
+  app: "Cut List Maker",
   tagline: "Од листата на делови до листа за фабриката за сечење.",
   settings: "Поставки",
   projects: "Проекти",
@@ -174,7 +174,7 @@ const mk: Texts = {
   backup: "Преземи резервна копија",
   restore: "Врати од копија",
   restored: (n: number) => `Вратени се ${n} проекти.`,
-  restore_bad: "Оваа датотека не е резервна копија од Листа за сечење.",
+  restore_bad: "Оваа датотека не е резервна копија од Cut List Maker.",
   backup_hint: "Проектите се чуваат само во овој прелистувач. Преземај резервна копија од време на време.",
   sample_name: "paradhoma (пример)",
   back: "Проекти",
@@ -299,7 +299,7 @@ const mk: Texts = {
 };
 
 const en: Texts = {
-  app: "Cutting list",
+  app: "Cut List Maker",
   tagline: "From your piece list to a sheet for the cutting factory.",
   settings: "Settings",
   projects: "Projects",
@@ -319,7 +319,7 @@ const en: Texts = {
   backup: "Download backup",
   restore: "Restore backup",
   restored: (n: number) => `Restored ${n} projects.`,
-  restore_bad: "This file is not a Cutting list backup.",
+  restore_bad: "This file is not a Cut List Maker backup.",
   backup_hint: "Projects are stored only in this browser. Download a backup now and then.",
   sample_name: "paradhoma (example)",
   back: "Projects",
