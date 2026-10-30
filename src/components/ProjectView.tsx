@@ -8,6 +8,7 @@ import { optimize } from "../optimizer";
 import { CutSheet, COLS, SheetHeader } from "./CutSheet";
 import { PieceEditor } from "./PieceEditor";
 import { Plan } from "./Plan";
+import { Logo } from "./Logo";
 
 interface Props {
   project: Project;
@@ -123,7 +124,7 @@ export function ProjectView({ project: p, settings: s, t, onProject, onSettings 
       <div class="app screen-only">
         <aside class="bench">
           <nav class="row bench-nav">
-            <a class="back" href="#">← {t.back}</a>
+            <a class="back with-logo" href="#"><Logo size={28} /><span>← {t.back}</span></a>
             <a class="back" href="#/settings">{t.settings} ⚙</a>
           </nav>
 

@@ -3,6 +3,7 @@ import { fmtNum, type Texts } from "../i18n";
 import { pickFile } from "../hooks";
 import { COLS } from "./CutSheet";
 import { NumInput } from "./NumInput";
+import { Logo } from "./Logo";
 
 interface Props {
   settings: Settings;
@@ -45,7 +46,7 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
     <div class="settings">
       <header class="topbar">
         <div>
-          <a class="back" href="#">← {t.back}</a>
+          <a class="back with-logo" href="#"><Logo size={28} /><span>← {t.back}</span></a>
           <h1 class="brand">{t.s_title}</h1>
         </div>
         <select id="setLang" aria-label={t.o_lang} value={s.lang} onChange={e => onSettings({ lang: e.currentTarget.value as Lang })}>

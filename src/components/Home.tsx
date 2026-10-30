@@ -6,6 +6,7 @@ import { downloadJson, pickFile, useFileDrop } from "../hooks";
 import { makeBackup, restoreBackup } from "../storage";
 import { stats } from "../sheet";
 import { openProject } from "../router";
+import { Logo } from "./Logo";
 
 interface Props {
   projects: Project[];
@@ -55,9 +56,12 @@ export function Home({ projects, settings, t, onSettings, onAdd, onUpdate, onRem
   return (
     <div class="home">
       <header class="topbar">
-        <div>
-          <h1 class="brand">{t.app}</h1>
-          <p class="tagline">{t.tagline}</p>
+        <div class="brand-block">
+          <Logo size={44} />
+          <div>
+            <h1 class="brand">{t.app}</h1>
+            <p class="tagline">{t.tagline}</p>
+          </div>
         </div>
         <div class="row">
           <a class="btn ghost" href="#/settings">⚙ {t.settings}</a>

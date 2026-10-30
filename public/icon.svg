@@ -1,6 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#1f6f5c"/>
-  <!-- a board with guillotine cuts -->
-  <rect x="96" y="136" width="320" height="240" rx="6" fill="#f7f6f3"/>
-  <path d="M256 136v240M96 256h160M336 256v120M256 316h80" stroke="#1f6f5c" stroke-width="14" fill="none"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#g)"/>
+  <!-- a board cut into panels, as in a cutting plan; the faded one is the offcut -->
+  <g fill="#fff">
+    <rect x="104" y="112" width="128" height="288" rx="18"/>
+    <rect x="256" y="112" width="152" height="132" rx="18"/>
+    <rect x="256" y="268" width="64" height="132" rx="18"/>
+    <rect x="344" y="268" width="64" height="132" rx="18" fill-opacity=".45"/>
+  </g>
 </svg>
