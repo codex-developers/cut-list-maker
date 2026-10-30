@@ -59,9 +59,12 @@ export function Home({ projects, settings, t, onSettings, onAdd, onUpdate, onRem
           <h1 class="brand">{t.app}</h1>
           <p class="tagline">{t.tagline}</p>
         </div>
-        <select id="homeLang" aria-label={t.o_lang} value={settings.lang} onChange={e => onSettings({ lang: e.currentTarget.value as Lang })}>
-          {LANGS.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
-        </select>
+        <div class="row">
+          <a class="btn ghost" href="#/settings">⚙ {t.settings}</a>
+          <select id="homeLang" aria-label={t.o_lang} value={settings.lang} onChange={e => onSettings({ lang: e.currentTarget.value as Lang })}>
+            {LANGS.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+          </select>
+        </div>
       </header>
 
       <div class="home-actions">

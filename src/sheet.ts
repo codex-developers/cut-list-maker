@@ -1,8 +1,14 @@
 // Turns a project's pieces into the groups and rows printed on the cutting sheet.
-import { materialOf, type Piece, type Settings } from "./model";
+import { cutSize, effectiveGrain, materialOf, matInfo, type Grain, type Piece, type Settings } from "./model";
 
 export interface Row extends Piece {
   mat: string;
+  /** Sizes sent to the factory (band thickness subtracted when that setting is on). */
+  cutL: number;
+  cutW: number;
+  g: Grain;
+  /** Row number on the printed sheet, 1-based, counted across groups. */
+  nr: number;
 }
 
 export interface Group {
@@ -30,33 +36,52 @@ export function stats(list: Piece[]): Stats {
   return { pcs, area, edge };
 }
 
-/** Identical pieces (same size, edges, material and, when the part column shows, same part) become one row. */
-function mergeRows(list: Row[], byPart: boolean): Row[] {
-  const out: Row[] = [];
-  const byKey = new Map<string, Row>();
-  for (const p of list) {
-    const k = [byPart ? p.name : "", p.L, p.Le, p.W, p.We, p.mat].join("|");
-    const hit = byKey.get(k);
-    if (hit) hit.qty += p.qty;
-    else { const r = { ...p }; byKey.set(k, r); out.push(r); }
-  }
-  return out;
+export function toRow(p: Piece, s: Settings): Row {
+  const mat = materialOf(p, s);
+  const c = cutSize(p, s, mat);
+  return { ...p, mat, cutL: c.L, cutW: c.W, g: effectiveGrain(p, matInfo(mat, s)), nr: 0 };
+}
+
+/** Pieces with the same key print as one row when merging is on. */
+export function mergeKey(r: Row, s: Settings): string {
+  if (!s.merge) return r.id;
+  return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g].join("|");
 }
 
 const byLength = (a: Row, b: Row) => b.L - a.L || b.W - a.W || a.name.localeCompare(b.name);
 
 export function buildGroups(pieces: Piece[], s: Settings): Group[] {
-  const all: Row[] = pieces.map(p => ({ ...p, mat: materialOf(p, s) }));
-  const prep = (list: Row[]) => (s.merge ? mergeRows(list, s.cols.part) : list.map(r => ({ ...r }))).sort(byLength);
-  if (!s.group) return [{ mat: null, rows: prep(all), stats: stats(all) }];
-  const mats = [...new Set(all.map(r => r.mat))].sort((a, b) => a.localeCompare(b));
-  return mats.map(m => {
-    const items = all.filter(r => r.mat === m);
-    return { mat: m, rows: prep(items), stats: stats(items) };
-  });
+  const all = pieces.filter(p => p.L > 0 && p.W > 0 && p.qty > 0).map(p => toRow(p, s));
+  const prep = (list: Row[]) => {
+    const out: Row[] = [];
+    const byKey = new Map<string, Row>();
+    for (const r of list) {
+      const k = mergeKey(r, s);
+      const hit = byKey.get(k);
+      if (hit) hit.qty += r.qty;
+      else { const c = { ...r }; byKey.set(k, c); out.push(c); }
+    }
+    return out.sort(byLength);
+  };
+  const groups: Group[] = s.group
+    ? [...new Set(all.map(r => r.mat))].sort((a, b) => a.localeCompare(b)).map(m => {
+        const items = all.filter(r => r.mat === m);
+        return { mat: m, rows: prep(items), stats: stats(items) };
+      })
+    : [{ mat: null, rows: prep(all), stats: stats(all) }];
+  let nr = 0;
+  for (const g of groups) for (const r of g.rows) r.nr = ++nr;
+  return groups;
 }
 
-/** Materials that carry edge band somewhere in the project, for the band-width inputs. */
+/** Maps each piece to its row number on the sheet, so the diagrams can show the same numbers. */
+export function rowNumbers(groups: Group[], s: Settings): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const g of groups) for (const r of g.rows) out.set(mergeKey(r, s), r.nr);
+  return out;
+}
+
+/** Materials that carry edge band somewhere in the project. */
 export function bandedMaterials(pieces: Piece[], s: Settings): string[] {
   const set = new Set(pieces.filter(p => p.Le || p.We).map(p => materialOf(p, s)));
   return [...set].sort((a, b) => a.localeCompare(b));

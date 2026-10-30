@@ -6,6 +6,7 @@ import { parsePieces } from "./parse";
 import { SAMPLE_TXT } from "./sample";
 import { Home } from "./components/Home";
 import { ProjectView } from "./components/ProjectView";
+import { SettingsView } from "./components/SettingsView";
 import { readRoute } from "./router";
 
 export function App() {
@@ -39,9 +40,11 @@ export function App() {
   const t = TEXTS[settings.lang];
 
   const updateSettings = (patch: Partial<Settings>) => {
-    const next = { ...settings, ...patch };
-    setSettings(next);
-    db.saveSettings(next);
+    setSettings(prev => {
+      const next = { ...(prev as Settings), ...patch };
+      db.saveSettings(next);
+      return next;
+    });
   };
 
   // Typing in a project saves at most every 300 ms.
@@ -69,9 +72,10 @@ export function App() {
     setProjects(await db.listProjects());
   };
 
-  const current = route ? projects.find(p => p.id === route) : undefined;
+  if (route.view === "settings") return <SettingsView settings={settings} t={t} onSettings={updateSettings} />;
+  const current = route.view === "project" ? projects.find(p => p.id === route.id) : undefined;
   if (current) {
-    return <ProjectView project={current} settings={settings} t={t} onProject={updateProject} onSettings={updateSettings} />;
+    return <ProjectView key={current.id} project={current} settings={settings} t={t} onProject={updateProject} onSettings={updateSettings} />;
   }
   return (
     <Home
