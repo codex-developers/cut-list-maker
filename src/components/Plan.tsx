@@ -1,6 +1,7 @@
 import type { Settings } from "../model";
 import { fmtNum, type Texts } from "../i18n";
-import type { Board, MaterialPlan } from "../optimizer";
+import type { Board, MaterialPlan, Placed } from "../optimizer";
+import { normalizeShape, outline } from "../shape";
 
 /** All cutting diagrams for a project, one block per material. */
 export function Plan({ plans, s, t }: { plans: MaterialPlan[]; s: Settings; t: Texts }) {
@@ -89,7 +90,14 @@ function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number
           const showDims = Math.min(p.w, p.h) > fs * 2.6 && p.w > fs * 5;
           return (
             <g key={i}>
-              <rect x={p.x} y={p.y} width={p.w} height={p.h} fill={mp.grain ? "url(#grain)" : "#fff"} stroke="#111" stroke-width="4" />
+              {p.shape ? (
+                <>
+                  <rect x={p.x} y={p.y} width={p.w} height={p.h} fill="#ecebe7" stroke="#111" stroke-width="4" />
+                  <path d={shapePath(p)} transform={shapeTransform(p)} fill={mp.grain ? "url(#grain)" : "#fff"} stroke="#111" stroke-width="3" />
+                </>
+              ) : (
+                <rect x={p.x} y={p.y} width={p.w} height={p.h} fill={mp.grain ? "url(#grain)" : "#fff"} stroke="#111" stroke-width="4" />
+              )}
               <text x={p.x + p.w / 2} y={p.y + p.h / 2 - (showDims ? fs * 0.45 : 0)} class="svg-nr" font-size={fs}>{p.nr}</text>
               {showDims && (
                 <text x={p.x + p.w / 2} y={p.y + p.h / 2 + fs * 0.75} class="svg-dim" font-size={fs * 0.62}>
@@ -113,3 +121,9 @@ function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number
 
 /** Label size in board millimetres, scaled to the piece. */
 const label = (w: number, h: number) => Math.max(34, Math.min(110, Math.min(w, h) * 0.32));
+
+const shapePath = (p: Placed) => outline(normalizeShape(p.shape!), p.L, p.W).d;
+
+/** Puts the shape (drawn with its length along x) into the placed rectangle, turned a quarter when needed. */
+const shapeTransform = (p: Placed) =>
+  p.turned ? `translate(${p.x} ${p.y}) matrix(0 1 -1 0 ${p.W} 0)` : `translate(${p.x} ${p.y})`;

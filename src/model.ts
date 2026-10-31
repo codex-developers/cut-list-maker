@@ -1,4 +1,5 @@
 // Core data types. Sizes are in millimetres.
+import { hasBand, type Shape } from "./shape";
 
 /** Edge band on a dimension: 0 none, 1 one side (—), 2 both sides (=). */
 export type Edge = 0 | 1 | 2;
@@ -28,6 +29,8 @@ export interface Piece {
   grain?: Grain;
   /** Edge band chosen in the editor; unset = the material's band. */
   bandId?: string;
+  /** Custom cut inside the L × W rectangle; its band is set per edge and Le/We are not used. */
+  shape?: Shape;
 }
 
 export interface Project {
@@ -235,7 +238,7 @@ export function pieceBand(p: Piece, s: Settings, matName = materialOf(p, s)): Ba
   return (p.bandId && s.bands.find(b => b.id === p.bandId)) || bandOf(matName, s);
 }
 
-export const hasEdge = (p: Piece) => p.Le > 0 || p.We > 0;
+export const hasEdge = (p: Piece) => (p.shape ? hasBand(p.shape) : p.Le > 0 || p.We > 0);
 
 export function effectiveGrain(p: Piece, mat: Material): Grain {
   return p.grain ?? (mat.grain ? "L" : "free");
@@ -243,7 +246,8 @@ export function effectiveGrain(p: Piece, mat: Material): Grain {
 
 /** Size sent to the factory: the finished size, minus band thickness when that setting is on. */
 export function cutSize(p: Piece, s: Settings, matName = materialOf(p, s)): { L: number; W: number } {
-  if (!s.deductBand) return { L: p.L, W: p.W };
+  // A shaped piece is cut as its full rectangle first, so its sizes are never reduced.
+  if (!s.deductBand || p.shape) return { L: p.L, W: p.W };
   const t = pieceBand(p, s, matName)?.thickness || 0;
   const r = (v: number) => Math.round(v * 10) / 10;
   return { L: r(p.L - p.Le * t), W: r(p.W - p.We * t) };

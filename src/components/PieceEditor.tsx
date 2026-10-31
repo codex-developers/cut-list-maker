@@ -3,6 +3,8 @@ import { bandName, bandOf, effectiveGrain, fitsBoard, materialOf, matInfo, newPi
 import type { Texts } from "../i18n";
 import { GRAIN_MARK } from "./CutSheet";
 import { NumInput } from "./NumInput";
+import { ShapeDialog } from "./ShapeDialog";
+import { ShapeView } from "./ShapeView";
 
 interface Props {
   pieces: Piece[];
@@ -21,6 +23,9 @@ const GRAIN_CYCLE: (Grain | undefined)[] = [undefined, "L", "W", "free"];
 export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo, onUndo, onRedo }: Props) {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  /** Piece whose shape dialog is open. */
+  const [shapeId, setShapeId] = useState<string | null>(null);
+  const shapePiece = pieces.find(p => p.id === shapeId);
   const tableRef = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
@@ -90,6 +95,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
               <th>{t.c_mat}</th>
               <th>{t.c_grain}</th>
               <th>{t.c_band}</th>
+              <th>{t.c_shape}</th>
               <th></th>
             </tr>
           </thead>
@@ -103,14 +109,14 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
               const bad = !(p.L > 0 && p.W > 0 && p.qty > 0);
               const big = !bad && !fitsBoard(p, s);
               return (
-                <tr key={p.id} data-row={p.id} class={bad ? "bad" : big ? "warn" : ""} title={big ? t.too_big : undefined}
+                <tr key={p.id} data-row={p.id} class={(bad ? "bad" : big ? "warn" : "") + (p.shape ? " shaped" : "")} title={big ? t.too_big : undefined}
                   onKeyDown={e => onKeyDown(e as unknown as KeyboardEvent, p)}>
                   <td class="n idx">{i + 1}</td>
                   <td><input id={`n-${p.id}`} type="text" class="ed-name" value={p.name} onInput={e => update(p.id, { name: e.currentTarget.value })} /></td>
                   <td><NumInput id={`L-${p.id}`} value={p.L} onValue={v => update(p.id, { L: v })} /></td>
-                  <td><EdgeCell id={`Le-${p.id}`} value={p.Le} t={t} onValue={v => update(p.id, { Le: v }, false)} /></td>
+                  <td><EdgeCell id={`Le-${p.id}`} value={p.Le} t={t} disabled={!!p.shape} onValue={v => update(p.id, { Le: v }, false)} /></td>
                   <td><NumInput id={`W-${p.id}`} value={p.W} onValue={v => update(p.id, { W: v })} /></td>
-                  <td><EdgeCell id={`We-${p.id}`} value={p.We} t={t} onValue={v => update(p.id, { We: v }, false)} /></td>
+                  <td><EdgeCell id={`We-${p.id}`} value={p.We} t={t} disabled={!!p.shape} onValue={v => update(p.id, { We: v }, false)} /></td>
                   <td><NumInput id={`q-${p.id}`} value={p.qty} int onValue={v => update(p.id, { qty: v })} class="narrow" /></td>
                   <td>
                     <input id={`m-${p.id}`} type="text" class="ed-mat" list="matSuggest" value={p.material ?? ""}
@@ -132,6 +138,12 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
                       {s.bands.map(b => <option key={b.id} value={b.id}>{bandName(b, s.bands)}</option>)}
                     </select>
                   </td>
+                  <td>
+                    <button type="button" id={`sh-${p.id}`} class={"shape-btn" + (p.shape ? " on" : "")} title={t.sh_edit} aria-label={t.sh_edit}
+                      onClick={() => setShapeId(p.id)}>
+                      {p.shape && p.L > 0 && p.W > 0 ? <ShapeView shape={p.shape} L={p.L} W={p.W} labels={false} /> : "▭"}
+                    </button>
+                  </td>
                   <td class="ed-act">
                     <button type="button" class="icon" title={t.dup_piece} aria-label={t.dup_piece} onClick={() => duplicate(p)}>⧉</button>
                     <button type="button" class="icon" title={t.del_piece} aria-label={t.del_piece}
@@ -143,22 +155,26 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={11}>
+              <td colSpan={12}>
                 <button type="button" class="ed-add" onClick={() => add()}>+ {t.add_piece}</button>
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
+      {shapePiece && (
+        <ShapeDialog piece={shapePiece} t={t} onClose={() => setShapeId(null)}
+          onShape={(shape, coalesce) => update(shapePiece.id, { shape }, coalesce)} />
+      )}
       <datalist id="matSuggest">{matNames.map(v => <option key={v} value={v} />)}</datalist>
       <p class="hint">{t.editor_hint}</p>
     </div>
   );
 }
 
-function EdgeCell({ id, value, onValue, t }: { id: string; value: Edge; onValue: (v: Edge) => void; t: Texts }) {
+function EdgeCell({ id, value, onValue, t, disabled }: { id: string; value: Edge; onValue: (v: Edge) => void; t: Texts; disabled?: boolean }) {
   return (
-    <select id={id} class="ed-edge" value={value} aria-label={t.c_band} title={[t.edge_none, t.edge_one, t.edge_two][value]}
+    <select id={id} class="ed-edge" value={disabled ? 0 : value} disabled={disabled} aria-label={t.c_band} title={[t.edge_none, t.edge_one, t.edge_two][value]}
       onChange={e => onValue(Number(e.currentTarget.value) as Edge)}>
       <option value={0} title={t.edge_none}>{"∅"}</option>
       <option value={1} title={t.edge_one}>{"—"}</option>

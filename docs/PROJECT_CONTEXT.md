@@ -89,6 +89,13 @@ lesonit	2030  	198  	1	Colors\White
    - An arrow shows the board's grain direction.
    - Summary per material: boards needed, % used, % waste, usable offcuts, and any pieces too big to fit.
 
+**Custom cuts (shapes)**
+- The **Forma** button on a piece row opens the shape dialog. Shapes: corners and sides (angled corner cut with two sizes, rounded corner with a radius, sides with an arc out or in), ellipse/circle filling the rectangle, or free points (x along the length, y along the width, clockwise).
+- Edge band on a shaped piece is set per edge by clicking the drawing; band metres use the real edge lengths. The row's — / = marks are not used then, and band thickness is never deducted (the rectangle is cut first).
+- Each shape can carry a note for the factory and an attached drawing (pick, paste with Ctrl+V or drop a Pro100 screenshot).
+- On the cutting list shaped pieces get their own **Custom cuts** section after the others, one card each with a dimensioned drawing; they never merge. The optimizer still plans the rectangle; the diagrams draw the shape inside it.
+- Code: `src/shape.ts` (geometry), `components/ShapeDialog.tsx`, `components/ShapeView.tsx`.
+
 **Grain direction per piece**
 - `↕` = grain along the piece length; the length must follow the board's grain.
 - `↔` = grain along the width.

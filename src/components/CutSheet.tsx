@@ -1,5 +1,7 @@
 import type { ComponentChildren } from "preact";
-import { bandName, matInfo, pieceBand, type ColKey, type Edge, type Project, type Settings } from "../model";
+import { bandName, hasEdge, matInfo, pieceBand, type ColKey, type Edge, type Project, type Settings } from "../model";
+import { normalizeShape } from "../shape";
+import { ShapeView } from "./ShapeView";
 import { fmtDate, fmtNum, type Texts } from "../i18n";
 import { stats, type Group, type Row } from "../sheet";
 
@@ -32,7 +34,7 @@ export const COLS: Col[] = [
   { k: "qty", label: "c_qty", w: 10, cls: "qty", cell: r => r.qty },
   { k: "mat", label: "c_mat", cls: "mat", cell: r => r.mat },
   { k: "thick", label: "c_thick", w: 8, cls: "qty", cell: (r, s) => fmtNum(matInfo(r.mat, s).thickness) },
-  { k: "band", label: "c_band", w: 12, cls: "band", cell: (r, s) => (r.Le || r.We ? bandLabel(r, s) : "") },
+  { k: "band", label: "c_band", w: 12, cls: "band", cell: (r, s) => (hasEdge(r) ? bandLabel(r, s) : "") },
   { k: "grain", label: "c_grain", w: 10, cls: "grain", cell: r => GRAIN_MARK[r.g] },
   { k: "part", label: "c_part", w: 13, cls: "part", cell: r => r.name },
 ];
@@ -60,7 +62,7 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
   const all = stats(groups.flatMap(g => g.rows));
   const sum = (x: { pcs: number; area: number; edge: number }) =>
     `${x.pcs} ${t.pcs} · ${fmtNum(x.area, 2)} m² · ${fmtNum(x.edge, 1)} ${t.edge_m}`;
-  const usedBands = [...new Set(groups.flatMap(g => g.rows).filter(r => r.Le || r.We).map(r => bandLabel(r, s)).filter(Boolean))];
+  const usedBands = [...new Set(groups.flatMap(g => g.rows).filter(hasEdge).map(r => bandLabel(r, s)).filter(Boolean))];
   const hasGrain = groups.some(g => g.rows.some(r => r.g !== "free"));
 
   return (
@@ -73,7 +75,7 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
         <p class="empty">{t.empty}</p>
       ) : (
         <>
-          {groups.map(g => (
+          {groups.map(g => g.special ? <Special key="special" g={g} s={s} t={t} sum={sum} /> : (
             <section class="group" key={g.mat ?? "all"}>
               {g.mat !== null && (
                 <div class="g-head">
@@ -104,5 +106,40 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
         </>
       )}
     </div>
+  );
+}
+
+/** The custom-cut pieces: one card each with a dimensioned drawing, so the factory can't miss them. */
+function Special({ g, s, t, sum }: { g: Group; s: Settings; t: Texts; sum: (x: Group["stats"]) => string }) {
+  return (
+    <section class="group special">
+      <div class="g-head">
+        <span class="g-name">{t.s_special}</span>
+        <span class="g-sum">{sum(g.stats)}</span>
+      </div>
+      <p class="sp-hint">{t.s_special_hint}</p>
+      <div class="sp-list">
+        {g.rows.map(r => {
+          const sh = normalizeShape(r.shape!);
+          const band = hasEdge(r) ? bandLabel(r, s) || "✓" : "";
+          return (
+            <article class="sp-card" key={r.id}>
+              <div class="sp-nr">{r.nr}</div>
+              <div class="sp-name">{r.name}</div>
+              <div class="sp-draw"><ShapeView shape={sh} L={r.L} W={r.W} grain={r.g} /></div>
+              <dl class="sp-info">
+                <dt>{t.s_rect}</dt><dd class="sp-dim">{fmtNum(r.cutL)} × {fmtNum(r.cutW)}</dd>
+                <dt>{t.c_qty}</dt><dd class="sp-dim">{r.qty}</dd>
+                <dt>{t.c_mat}</dt><dd>{r.mat} · {fmtNum(matInfo(r.mat, s).thickness)} mm</dd>
+                {band && <><dt>{t.c_band}</dt><dd>{band}</dd></>}
+                {r.g !== "free" && <><dt>{t.c_grain}</dt><dd>{r.g === "L" ? t.g_L : t.g_W}</dd></>}
+                {sh.note.trim() && <><dt>{t.sh_note}</dt><dd class="sp-note">{sh.note.trim()}</dd></>}
+              </dl>
+              {sh.image && <img class="sp-image" src={sh.image} alt="" />}
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }

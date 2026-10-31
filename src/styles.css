@@ -270,6 +270,68 @@ table.ed tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
 .offcuts b { font-family: var(--f-body); color: var(--ink); }
 .plan-sheet { min-height: 0; }
 
+/* ---------- custom cuts ---------- */
+.shape-btn {
+  width: 40px; height: 30px; padding: 2px; border-radius: 6px; cursor: pointer; display: grid; place-items: center;
+  border: 1px dashed var(--line-strong); background: var(--field); color: var(--muted); font-size: 15px;
+}
+.ed tr.shaped td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.shape-btn.on { border: 1.5px solid var(--accent); background: var(--accent-soft); }
+.shape-btn .shape-svg { width: 100%; height: 100%; }
+.shape-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.shape-hit { cursor: pointer; }
+.shape-hit:hover { stroke: rgba(15,118,110,.18); }
+.shape-dim { font-family: var(--f-num); fill: #333; }
+.shape-len { fill: #555; }
+
+.modal {
+  position: fixed; inset: 0; z-index: 50; background: rgba(15,26,36,.45);
+  display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto;
+}
+.dialog {
+  background: var(--panel); color: var(--fg); border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  width: min(1040px, 100%); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px;
+}
+.dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.dlg-head h2 { margin: 0; font: 700 18px/1.2 var(--f-display); }
+.dlg-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 800px) { .dlg-body { grid-template-columns: 1fr; } }
+.dlg-draw, .dlg-form { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.shape-paper { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px; }
+.shape-paper .shape-svg { max-height: 460px; }
+.box-lite { display: flex; flex-direction: column; gap: 6px; }
+.dlg-foot { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.seg-btns { display: flex; gap: 4px; padding: 4px; background: color-mix(in srgb, var(--line) 70%, var(--bg)); border-radius: calc(var(--radius-sm) + 4px); align-self: flex-start; flex-wrap: wrap; }
+.seg-btn { font: 600 13px var(--f-body); color: var(--muted); background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); }
+.seg-btn.on { color: var(--fg); background: var(--panel); box-shadow: 0 1px 3px rgba(15,26,36,.12); }
+.sub { font: 700 13px var(--f-display); }
+.sh-grid, .sh-points { display: flex; flex-direction: column; gap: 6px; }
+.sh-points { max-height: 280px; overflow-y: auto; }
+.sh-line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sh-label { width: 112px; font-size: 13px; color: var(--muted); }
+.sh-label.idx { width: 24px; font-family: var(--f-num); text-align: right; }
+.sh-line select { width: auto; }
+.sh-nums { display: flex; gap: 10px; flex-wrap: wrap; }
+.sh-nums label, .sh-points label { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; color: var(--muted); }
+.sh-points .num { width: 80px; }
+.sh-image { max-width: 100%; max-height: 200px; object-fit: contain; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; align-self: flex-start; }
+
+/* on the sheet */
+.special { break-before: auto; }
+.sp-hint { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
+.sp-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.sp-card { border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 10px 10px; display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; break-inside: avoid; position: relative; }
+.sp-nr { font: 800 20px/1 var(--f-num); }
+.sp-name { font: 700 14px/1.4 var(--f-display); align-self: center; }
+.sp-draw { grid-column: 1 / -1; }
+.sp-draw .shape-svg { max-height: 62mm; }
+.sp-info { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; font-size: 12px; }
+.sp-info dt { color: var(--ink-soft); text-transform: uppercase; font-size: 10px; letter-spacing: .04em; align-self: center; }
+.sp-info dd { margin: 0; }
+.sp-dim { font: 600 14px var(--f-num); }
+.sp-note { white-space: pre-wrap; }
+.sp-image { grid-column: 1 / -1; max-width: 100%; max-height: 70mm; object-fit: contain; border: 1px solid var(--rule); }
+
 .print-only { display: none; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

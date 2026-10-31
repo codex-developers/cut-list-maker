@@ -3,6 +3,7 @@
 // (and its grain), y along the board width.
 import { matInfo, type Settings } from "./model";
 import type { Row } from "./sheet";
+import type { Shape } from "./shape";
 
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -14,6 +15,8 @@ export interface Placed extends Rect {
   W: number;
   /** true when the piece length runs across the board (along y). */
   turned: boolean;
+  /** Custom cut drawn inside the rectangle. */
+  shape?: Shape;
 }
 
 export interface Board {
@@ -42,6 +45,7 @@ interface Item {
   W: number;
   /** Allowed placements as [along x, along y, turned]. */
   orients: [number, number, boolean][];
+  shape?: Shape;
 }
 
 type Fit = "area" | "short" | "long";
@@ -115,7 +119,7 @@ function pack(items: Item[], bw: number, bh: number, kerf: number, fit: Fit, rul
     }
     const { b, i, o } = best as { b: Board; i: number; o: [number, number, boolean] };
     const r = b.free[i];
-    b.placed.push({ x: r.x, y: r.y, w: o[0], h: o[1], turned: o[2], nr: it.nr, name: it.name, L: it.L, W: it.W });
+    b.placed.push({ x: r.x, y: r.y, w: o[0], h: o[1], turned: o[2], nr: it.nr, name: it.name, L: it.L, W: it.W, shape: it.shape });
     b.free.splice(i, 1, ...split(r, o[0], o[1], kerf, rule));
   }
   return { boards, notFit };
@@ -140,7 +144,7 @@ export function optimize(rows: Row[], nrOf: (r: Row) => number, s: Settings): Ma
       const straight: [number, number, boolean] = [L, W, false];
       const turned: [number, number, boolean] = [W, L, true];
       const orients = r.g === "L" ? [straight] : r.g === "W" ? [turned] : L === W ? [straight] : [straight, turned];
-      for (let k = 0; k < r.qty; k++) items.push({ nr: nrOf(r), name: r.name, L, W, orients });
+      for (let k = 0; k < r.qty; k++) items.push({ nr: nrOf(r), name: r.name, L, W, orients, shape: r.shape });
     }
 
     // Try every combination of order, fit and cut rule; keep the fewest boards, then the emptiest last board.

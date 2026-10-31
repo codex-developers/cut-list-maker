@@ -1,5 +1,6 @@
 // Turns a project's pieces into the groups and rows printed on the cutting sheet.
-import { cutSize, effectiveGrain, materialOf, matInfo, pieceBand, type Grain, type Piece, type Settings } from "./model";
+import { cutSize, effectiveGrain, hasEdge, materialOf, matInfo, pieceBand, type Grain, type Piece, type Settings } from "./model";
+import { bandMetres } from "./shape";
 
 export interface Row extends Piece {
   mat: string;
@@ -14,6 +15,8 @@ export interface Row extends Piece {
 export interface Group {
   /** null when grouping is off. */
   mat: string | null;
+  /** The custom-cut pieces, listed in their own section after the others. */
+  special?: boolean;
   rows: Row[];
   stats: Stats;
 }
@@ -31,7 +34,7 @@ export function stats(list: Piece[]): Stats {
   for (const p of list) {
     pcs += p.qty;
     area += (p.L * p.W * p.qty) / 1e6;
-    edge += ((p.L * p.Le + p.W * p.We) * p.qty) / 1000;
+    edge += (p.shape ? bandMetres(p.shape, p.L, p.W) : (p.L * p.Le + p.W * p.We) / 1000) * p.qty;
   }
   return { pcs, area, edge };
 }
@@ -44,15 +47,17 @@ export function toRow(p: Piece, s: Settings): Row {
 
 /** Pieces with the same key print as one row when merging is on. */
 export function mergeKey(r: Row, s: Settings): string {
-  if (!s.merge) return r.id;
-  const band = r.Le || r.We ? pieceBand(r, s, r.mat)?.id ?? "" : "";
+  if (!s.merge || r.shape) return r.id;
+  const band = hasEdge(r) ? pieceBand(r, s, r.mat)?.id ?? "" : "";
   return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g, band].join("|");
 }
 
 const byLength = (a: Row, b: Row) => b.L - a.L || b.W - a.W || a.name.localeCompare(b.name);
 
 export function buildGroups(pieces: Piece[], s: Settings): Group[] {
-  const all = pieces.filter(p => p.L > 0 && p.W > 0 && p.qty > 0).map(p => toRow(p, s));
+  const valid = pieces.filter(p => p.L > 0 && p.W > 0 && p.qty > 0).map(p => toRow(p, s));
+  const all = valid.filter(r => !r.shape);
+  const special = valid.filter(r => r.shape);
   const prep = (list: Row[]) => {
     const out: Row[] = [];
     const byKey = new Map<string, Row>();
@@ -69,7 +74,12 @@ export function buildGroups(pieces: Piece[], s: Settings): Group[] {
         const items = all.filter(r => r.mat === m);
         return { mat: m, rows: prep(items), stats: stats(items) };
       })
-    : [{ mat: null, rows: prep(all), stats: stats(all) }];
+    : all.length ? [{ mat: null, rows: prep(all), stats: stats(all) }] : [];
+  // Shaped pieces never merge; keep them by material, then size.
+  if (special.length) {
+    const rows = special.map(r => ({ ...r })).sort((a, b) => a.mat.localeCompare(b.mat) || byLength(a, b));
+    groups.push({ mat: null, special: true, rows, stats: stats(special) });
+  }
   let nr = 0;
   for (const g of groups) for (const r of g.rows) r.nr = ++nr;
   return groups;
@@ -84,6 +94,6 @@ export function rowNumbers(groups: Group[], s: Settings): Map<string, number> {
 
 /** Materials that carry edge band somewhere in the project. */
 export function bandedMaterials(pieces: Piece[], s: Settings): string[] {
-  const set = new Set(pieces.filter(p => p.Le || p.We).map(p => materialOf(p, s)));
+  const set = new Set(pieces.filter(hasEdge).map(p => materialOf(p, s)));
   return [...set].sort((a, b) => a.localeCompare(b));
 }
