@@ -4,7 +4,6 @@ import type { Texts } from "../i18n";
 import { GRAIN_MARK } from "./CutSheet";
 import { NumInput } from "./NumInput";
 import { ShapeDialog } from "./ShapeDialog";
-import { ShapeView } from "./ShapeView";
 
 interface Props {
   pieces: Piece[];
@@ -141,7 +140,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
                   <td>
                     <button type="button" id={`sh-${p.id}`} class={"shape-btn" + (p.shape ? " on" : "")} title={t.sh_edit} aria-label={t.sh_edit}
                       onClick={() => setShapeId(p.id)}>
-                      {p.shape && p.L > 0 && p.W > 0 ? <ShapeView shape={p.shape} L={p.L} W={p.W} labels={false} /> : "▭"}
+                      {p.shape ? <span class="shape-fill" /> : "▭"}
                     </button>
                   </td>
                   <td class="ed-act">

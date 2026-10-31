@@ -105,7 +105,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
 .backup .hint { margin: 0; }
 
 /* ---------- project view ---------- */
-.app { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; max-width: 1240px; margin: 0 auto; align-items: start; }
+.app { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; max-width: 1640px; margin: 0 auto; align-items: start; }
 @media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr); } }
 .bench { display: flex; flex-direction: column; gap: 16px; }
 .back { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 13px; }
@@ -277,7 +277,7 @@ table.ed tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
 }
 .ed tr.shaped td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
 .shape-btn.on { border: 1.5px solid var(--accent); background: var(--accent-soft); }
-.shape-btn .shape-svg { width: 100%; height: 100%; }
+.shape-fill { display: block; width: 18px; height: 14px; border-radius: 2px; background: var(--accent); }
 .shape-svg { display: block; width: 100%; height: auto; overflow: visible; }
 .shape-hit { cursor: pointer; }
 .shape-hit:hover { stroke: rgba(15,118,110,.18); }
