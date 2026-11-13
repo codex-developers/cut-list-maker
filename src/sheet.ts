@@ -1,6 +1,7 @@
 // Turns a project's pieces into the groups and rows printed on the cutting sheet.
 import { cutSize, effectiveGrain, hasEdge, materialOf, matInfo, pieceBand, type Grain, type Piece, type Settings } from "./model";
 import { bandMetres } from "./shape";
+import { hingeKey } from "./hinge";
 
 export interface Row extends Piece {
   mat: string;
@@ -49,7 +50,7 @@ export function toRow(p: Piece, s: Settings): Row {
 export function mergeKey(r: Row, s: Settings): string {
   if (!s.merge || r.shape) return r.id;
   const band = hasEdge(r) ? pieceBand(r, s, r.mat)?.id ?? "" : "";
-  return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g, band].join("|");
+  return [s.cols.part ? r.name : "", r.L, r.Le, r.W, r.We, r.mat, r.g, band, hingeKey(r.hinges, r.L, r.W)].join("|");
 }
 
 const byLength = (a: Row, b: Row) => b.L - a.L || b.W - a.W || a.name.localeCompare(b.name);

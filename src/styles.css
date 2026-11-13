@@ -353,3 +353,15 @@ table.ed tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
   .sheet-wrap { overflow: visible; }
   tbody tr:nth-child(even) td { background: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ---------- hinge drilling ---------- */
+.hinge-btn { font-size: 14px; }
+.hinge-btn.bad { border-color: #b42318; }
+.hinge-on { font: 700 12px var(--f-num); color: var(--accent); white-space: nowrap; }
+.hinge-paper .shape-svg { max-height: 460px; }
+.hinge-pos { fill: #111; font-weight: 600; }
+.hinge-edge { fill: #555; }
+.hinge-list { margin: 0; font: 600 14px var(--f-num); }
+.warn-text { color: #b42318; margin: 0; }
+.hg-mark { margin-left: 3px; font-size: .8em; }
+.drilling .sp-draw .shape-svg { max-height: 70mm; }

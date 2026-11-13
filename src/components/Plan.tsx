@@ -41,7 +41,7 @@ function MaterialBlock({ mp, s, t }: { mp: MaterialPlan; s: Settings; t: Texts }
               <b>{t.board_n(i + 1, mp.boards.length)}</b>
               <span>{b.placed.length} {t.pcs}</span>
             </figcaption>
-            <BoardSvg b={b} mp={mp} trim={s.trim} t={t} />
+            <BoardSvg b={b} mp={mp} trim={s.trim} dia={s.hinge.dia} t={t} />
           </figure>
         ))}
       </div>
@@ -58,7 +58,7 @@ function MaterialBlock({ mp, s, t }: { mp: MaterialPlan; s: Settings; t: Texts }
   );
 }
 
-function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number; t: Texts }) {
+function BoardSvg({ b, mp, trim, dia, t }: { b: Board; mp: MaterialPlan; trim: number; dia: number; t: Texts }) {
   const W = mp.sheetL, H = mp.sheetW;
   const pad = 60; // room for the grain arrow under the board
   const isOffcut = (w: number, h: number) => mp.offcuts.some(o => o.rect.w === w && o.rect.h === h);
@@ -98,6 +98,9 @@ function BoardSvg({ b, mp, trim, t }: { b: Board; mp: MaterialPlan; trim: number
               ) : (
                 <rect x={p.x} y={p.y} width={p.w} height={p.h} fill={mp.grain ? "url(#grain)" : "#fff"} stroke="#111" stroke-width="4" />
               )}
+              {p.holes?.map(([u, v], k) => (
+                <circle key={"h" + k} cx={p.x + (p.turned ? v : u)} cy={p.y + (p.turned ? u : v)} r={dia / 2} fill="#fff" stroke="#111" stroke-width="4" />
+              ))}
               <text x={p.x + p.w / 2} y={p.y + p.h / 2 - (showDims ? fs * 0.45 : 0)} class="svg-nr" font-size={fs}>{p.nr}</text>
               {showDims && (
                 <text x={p.x + p.w / 2} y={p.y + p.h / 2 + fs * 0.75} class="svg-dim" font-size={fs * 0.62}>

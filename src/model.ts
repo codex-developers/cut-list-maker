@@ -1,5 +1,6 @@
 // Core data types. Sizes are in millimetres.
 import { hasBand, type Shape } from "./shape";
+import { DEFAULT_HINGE, type HingeDefaults, type Hinges } from "./hinge";
 
 /** Edge band on a dimension: 0 none, 1 one side (—), 2 both sides (=). */
 export type Edge = 0 | 1 | 2;
@@ -31,6 +32,8 @@ export interface Piece {
   bandId?: string;
   /** Custom cut inside the L × W rectangle; its band is set per edge and Le/We are not used. */
   shape?: Shape;
+  /** 35 mm hinge cups drilled by the factory. */
+  hinges?: Hinges;
 }
 
 export interface Project {
@@ -107,6 +110,8 @@ export interface Settings {
   minOffcut: number;
   /** Add the optimizer's cutting diagrams to the printout. */
   printDiagrams: boolean;
+  /** Hinge cup size and the distances new hinged pieces start with. */
+  hinge: HingeDefaults;
 }
 
 export const uid = (): string =>
@@ -144,6 +149,7 @@ export const DEFAULT_SETTINGS: Settings = {
   trim: 10,
   minOffcut: 200,
   printDiagrams: false,
+  hinge: DEFAULT_HINGE,
 };
 
 /** "22 × 0,8 mm" -> { width: 22, thickness: 0.8 } */
@@ -162,6 +168,7 @@ export function normalizeSettings(raw: unknown): Settings {
     ...s,
     cols: { ...d.cols, ...(s.cols || {}) },
     company: { ...d.company, ...(s.company || {}) },
+    hinge: { ...d.hinge, ...(s.hinge || {}) },
     materials: (s.materials || d.materials).map(m => ({ ...m })),
     bands: (s.bands || d.bands).map(b => ({ ...b, type: BAND_TYPES.includes(b.type) ? b.type : DEFAULT_BAND_TYPE })),
   };

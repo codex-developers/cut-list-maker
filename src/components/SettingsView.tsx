@@ -162,6 +162,17 @@ export function SettingsView({ settings: s, t, onSettings }: Props) {
       </section>
 
       <section class="box">
+        <h2>{t.h_hinges}</h2>
+        <p class="hint">{t.hinges_hint}</p>
+        <div class="grid3">
+          <label class="field"><span>{t.hg_dia}</span><NumInput id="hgDia" value={s.hinge.dia} onValue={v => onSettings({ hinge: { ...s.hinge, dia: v } })} /></label>
+          <label class="field"><span>{t.hg_depth}</span><NumInput id="hgDepth" value={s.hinge.depth} onValue={v => onSettings({ hinge: { ...s.hinge, depth: v } })} /></label>
+          <label class="field"><span>{t.hg_edge}</span><NumInput id="hgEdge" value={s.hinge.edge} onValue={v => onSettings({ hinge: { ...s.hinge, edge: v } })} /></label>
+          <label class="field"><span>{t.hg_end}</span><NumInput id="hgEnd" value={s.hinge.end} onValue={v => onSettings({ hinge: { ...s.hinge, end: v } })} /></label>
+        </div>
+      </section>
+
+      <section class="box">
         <h2>{t.h_defaults}</h2>
         <label class="check"><input id="sGroup" type="checkbox" checked={s.group} onChange={e => onSettings({ group: e.currentTarget.checked })} /> {t.o_group}</label>
         <label class="check"><input id="sMerge" type="checkbox" checked={s.merge} onChange={e => onSettings({ merge: e.currentTarget.checked })} /> {t.o_merge}</label>

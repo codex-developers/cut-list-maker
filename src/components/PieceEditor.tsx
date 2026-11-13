@@ -4,6 +4,8 @@ import type { Texts } from "../i18n";
 import { GRAIN_MARK } from "./CutSheet";
 import { NumInput } from "./NumInput";
 import { ShapeDialog } from "./ShapeDialog";
+import { HingeDialog } from "./HingeDialog";
+import { hingeCount, hingeProblem } from "../hinge";
 
 interface Props {
   pieces: Piece[];
@@ -25,6 +27,9 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
   /** Piece whose shape dialog is open. */
   const [shapeId, setShapeId] = useState<string | null>(null);
   const shapePiece = pieces.find(p => p.id === shapeId);
+  /** Piece whose hinge dialog is open. */
+  const [hingeId, setHingeId] = useState<string | null>(null);
+  const hingePiece = pieces.find(p => p.id === hingeId);
   const tableRef = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
@@ -95,6 +100,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
               <th>{t.c_grain}</th>
               <th>{t.c_band}</th>
               <th>{t.c_shape}</th>
+              <th>{t.c_hinge}</th>
               <th></th>
             </tr>
           </thead>
@@ -143,6 +149,12 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
                       {p.shape ? <span class="shape-fill" /> : "▭"}
                     </button>
                   </td>
+                  <td>
+                    <button type="button" id={`hg-${p.id}`} class={"shape-btn hinge-btn" + (p.hinges ? " on" : "") + (p.hinges && hingeProblem(p.hinges, p.L, p.W, s.hinge.dia) ? " bad" : "")}
+                      title={t.hg_edit} aria-label={t.hg_edit} onClick={() => setHingeId(p.id)}>
+                      {p.hinges ? <span class="hinge-on">◉ {hingeCount(p.hinges, p.L, p.W)}</span> : "○"}
+                    </button>
+                  </td>
                   <td class="ed-act">
                     <button type="button" class="icon" title={t.dup_piece} aria-label={t.dup_piece} onClick={() => duplicate(p)}>⧉</button>
                     <button type="button" class="icon" title={t.del_piece} aria-label={t.del_piece}
@@ -154,7 +166,7 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={12}>
+              <td colSpan={13}>
                 <button type="button" class="ed-add" onClick={() => add()}>+ {t.add_piece}</button>
               </td>
             </tr>
@@ -164,6 +176,10 @@ export function PieceEditor({ pieces, settings: s, t, onChange, canUndo, canRedo
       {shapePiece && (
         <ShapeDialog piece={shapePiece} t={t} onClose={() => setShapeId(null)}
           onShape={(shape, coalesce) => update(shapePiece.id, { shape }, coalesce)} />
+      )}
+      {hingePiece && (
+        <HingeDialog piece={hingePiece} settings={s} t={t} onClose={() => setHingeId(null)}
+          onHinges={(hinges, coalesce) => update(hingePiece.id, { hinges }, coalesce)} />
       )}
       <datalist id="matSuggest">{matNames.map(v => <option key={v} value={v} />)}</datalist>
       <p class="hint">{t.editor_hint}</p>

@@ -4,6 +4,7 @@
 import { matInfo, type Settings } from "./model";
 import type { Row } from "./sheet";
 import type { Shape } from "./shape";
+import { hingeHoles } from "./hinge";
 
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -17,6 +18,8 @@ export interface Placed extends Rect {
   turned: boolean;
   /** Custom cut drawn inside the rectangle. */
   shape?: Shape;
+  /** Hinge cup centres as [along L, along W] from the piece corner. */
+  holes?: [number, number][];
 }
 
 export interface Board {
@@ -46,6 +49,7 @@ interface Item {
   /** Allowed placements as [along x, along y, turned]. */
   orients: [number, number, boolean][];
   shape?: Shape;
+  holes?: [number, number][];
 }
 
 type Fit = "area" | "short" | "long";
@@ -119,7 +123,7 @@ function pack(items: Item[], bw: number, bh: number, kerf: number, fit: Fit, rul
     }
     const { b, i, o } = best as { b: Board; i: number; o: [number, number, boolean] };
     const r = b.free[i];
-    b.placed.push({ x: r.x, y: r.y, w: o[0], h: o[1], turned: o[2], nr: it.nr, name: it.name, L: it.L, W: it.W, shape: it.shape });
+    b.placed.push({ x: r.x, y: r.y, w: o[0], h: o[1], turned: o[2], nr: it.nr, name: it.name, L: it.L, W: it.W, shape: it.shape, holes: it.holes });
     b.free.splice(i, 1, ...split(r, o[0], o[1], kerf, rule));
   }
   return { boards, notFit };
@@ -144,7 +148,9 @@ export function optimize(rows: Row[], nrOf: (r: Row) => number, s: Settings): Ma
       const straight: [number, number, boolean] = [L, W, false];
       const turned: [number, number, boolean] = [W, L, true];
       const orients = r.g === "L" ? [straight] : r.g === "W" ? [turned] : L === W ? [straight] : [straight, turned];
-      for (let k = 0; k < r.qty; k++) items.push({ nr: nrOf(r), name: r.name, L, W, orients, shape: r.shape });
+      // The standing view has x across the width and y down the length; the board plan uses [along L, along W].
+      const holes = r.hinges && hingeHoles(r.hinges, L, W).map(([x, y]) => [y, x] as [number, number]);
+      for (let k = 0; k < r.qty; k++) items.push({ nr: nrOf(r), name: r.name, L, W, orients, shape: r.shape, holes });
     }
 
     // Try every combination of order, fit and cut rule; keep the fewest boards, then the emptiest last board.

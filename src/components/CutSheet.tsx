@@ -2,6 +2,8 @@ import type { ComponentChildren } from "preact";
 import { bandName, hasEdge, matInfo, pieceBand, type ColKey, type Edge, type Project, type Settings } from "../model";
 import { normalizeShape } from "../shape";
 import { ShapeView } from "./ShapeView";
+import { HingeView } from "./HingeView";
+import { hingeCount, hingePositions } from "../hinge";
 import { fmtDate, fmtNum, type Texts } from "../i18n";
 import { stats, type Group, type Row } from "../sheet";
 
@@ -11,6 +13,7 @@ function bandLabel(r: Row, s: Settings): string {
   const b = pieceBand(r, s, r.mat);
   return b ? bandName(b) : "";
 }
+export const HINGE_MARK = "◉";
 export const GRAIN_MARK = { L: "↕", W: "↔", free: "" } as const;
 
 function Dim({ v, e }: { v: number; e: Edge }) {
@@ -28,7 +31,7 @@ interface Col {
 
 // Sheet columns, in print order.
 export const COLS: Col[] = [
-  { k: "nr", label: "c_nr", w: 6, cls: "idx n", cell: r => r.nr },
+  { k: "nr", label: "c_nr", w: 6, cls: "idx n", cell: r => <>{r.nr}{r.hinges && <span class="hg-mark">{HINGE_MARK}</span>}</> },
   { k: "len", label: "c_len", w: 13, cls: "dim", cell: r => <Dim v={r.cutL} e={r.Le} /> },
   { k: "wid", label: "c_wid", w: 13, cls: "dim", cell: r => <Dim v={r.cutW} e={r.We} /> },
   { k: "qty", label: "c_qty", w: 10, cls: "qty", cell: r => r.qty },
@@ -64,6 +67,7 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
     `${x.pcs} ${t.pcs} · ${fmtNum(x.area, 2)} m² · ${fmtNum(x.edge, 1)} ${t.edge_m}`;
   const usedBands = [...new Set(groups.flatMap(g => g.rows).filter(hasEdge).map(r => bandLabel(r, s)).filter(Boolean))];
   const hasGrain = groups.some(g => g.rows.some(r => r.g !== "free"));
+  const drilled = groups.flatMap(g => g.rows).filter(r => r.hinges).sort((a, b) => a.nr - b.nr);
 
   return (
     <div class="sheet">
@@ -93,11 +97,13 @@ export function CutSheet({ project, groups, settings: s, t }: { project: Project
               </table>
             </section>
           ))}
+          {drilled.length > 0 && <Drilling rows={drilled} s={s} t={t} />}
           <footer class="s-foot">
             <div class="legend">
               <span><b>{"—"}</b>{t.one}</span>
               <span><b>=</b>{t.two}</span>
               <span>{t.none}</span>
+              {drilled.length > 0 && <span><b>{HINGE_MARK}</b>{t.hg_legend}</span>}
               {hasGrain && s.cols.grain && <span><b>{GRAIN_MARK.L}</b>{t.g_L}</span>}
               {hasGrain && s.cols.grain && <span><b>{GRAIN_MARK.W}</b>{t.g_W}</span>}
             </div>
@@ -136,6 +142,43 @@ function Special({ g, s, t, sum }: { g: Group; s: Settings; t: Texts; sum: (x: G
                 {sh.note.trim() && <><dt>{t.sh_note}</dt><dd class="sp-note">{sh.note.trim()}</dd></>}
               </dl>
               {sh.image && <img class="sp-image" src={sh.image} alt="" />}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Pieces with hinge cups: one card each, drawn from the drilled face with every cup's position. */
+function Drilling({ rows, s, t }: { rows: Row[]; s: Settings; t: Texts }) {
+  const d = s.hinge;
+  const cups = rows.reduce((a, r) => a + hingeCount(r.hinges!, r.L, r.W) * r.qty, 0);
+  return (
+    <section class="group special drilling">
+      <div class="g-head">
+        <span class="g-name">{t.s_drill}</span>
+        <span class="g-sum">{t.s_drill_sum(cups, fmtNum(d.dia), fmtNum(d.depth))}</span>
+      </div>
+      <p class="sp-hint">{t.s_drill_hint}</p>
+      <div class="sp-list">
+        {rows.map(r => {
+          const h = r.hinges!;
+          const vertical = h.side === "l" || h.side === "r";
+          return (
+            <article class="sp-card" key={r.id}>
+              <div class="sp-nr">{r.nr}</div>
+              <div class="sp-name">{r.name}</div>
+              <div class="sp-draw"><HingeView h={h} L={r.L} W={r.W} dia={d.dia} grain={r.g} /></div>
+              <dl class="sp-info">
+                <dt>{t.s_size}</dt><dd class="sp-dim">{fmtNum(r.L)} × {fmtNum(r.W)}</dd>
+                <dt>{t.c_qty}</dt><dd class="sp-dim">{r.qty}</dd>
+                <dt>{t.c_mat}</dt><dd>{r.mat} · {fmtNum(matInfo(r.mat, s).thickness)} mm</dd>
+                <dt>{t.hg_side}</dt><dd>{t.sh_side[h.side]}</dd>
+                <dt>{t.hg_cups}</dt><dd class="sp-dim">{hingeCount(h, r.L, r.W)} × ⌀{fmtNum(d.dia)}</dd>
+                <dt>{t.hg_edge}</dt><dd class="sp-dim">{fmtNum(h.edge)} mm</dd>
+                <dt>{vertical ? t.hg_from_top : t.hg_from_left}</dt><dd class="sp-dim">{hingePositions(h, r.L, r.W).map(v => fmtNum(v)).join(" · ")}</dd>
+              </dl>
             </article>
           );
         })}
